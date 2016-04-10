@@ -10,18 +10,22 @@ namespace Assets.Scripts
     {
         private QuestionList questions;
         private float timeElapsed = 0;
-        private Questions currentQuestion;
+        // private Questions currentQuestion;
 
         public QuestionOp()
         {
             questions = new QuestionList();
         }
 
-        public void AskQuestion(AudioSource audioSource)
+        public Questions AskQuestion(AudioSource audioSource)
         {
-            currentQuestion = questions.GetNextQuestion();
-            audioSource.clip = Resources.Load(currentQuestion.QAudio) as AudioClip;
-            audioSource.Play();
+            Questions currentQuestion = questions.GetNextQuestion();
+            if (currentQuestion != null)
+            {
+                audioSource.clip = Resources.Load("Audio/" + currentQuestion.QAudio) as AudioClip;
+                audioSource.Play();
+            }
+            return currentQuestion;
         }
 
         public void ResetTimeElapsed()
@@ -29,10 +33,10 @@ namespace Assets.Scripts
             timeElapsed = 0;
         }
 
-        public bool TimeIsUp(float timeDelta)
+        public bool TimeIsUp(float timeDelta, float duration)
         {
             timeElapsed += timeDelta;
-            if (timeElapsed >= currentQuestion.QDuration)
+            if (timeElapsed >= duration)
             {
                 ResetTimeElapsed();
                 return true;

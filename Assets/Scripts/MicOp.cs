@@ -14,11 +14,11 @@ public class MicOp
         }
     }
 
-    public void StartRecording(ref AudioClip rClip)
+    public void StartRecording(ref AudioClip rClip, int duration)
     {
         if (!Microphone.IsRecording(null))
         {
-            rClip = Microphone.Start(null, true, 999, maxFreq);
+            rClip = Microphone.Start(null, true, duration, maxFreq);
         }
         else
         {

@@ -7,15 +7,18 @@ public class AskQuestions : MonoBehaviour {
     private GameObject player;
     private AudioSource audioS;
     private bool initial_greeting;
+    private bool endOfTest;
     private MicOp microPhoneOp;
     private AudioClip recClip;
     private float timeElapse = 0;
     private int recTimeLen = 10;
     private QuestionOp questionOperation;
+    private Questions curQuestion;
 
     void Start () {
         timeElapse = 0;
         initial_greeting = false;
+        endOfTest = false;
         player = GameObject.FindGameObjectWithTag("Player");
         audioS = GetComponent<AudioSource>();
         microPhoneOp = new MicOp();
@@ -27,13 +30,15 @@ public class AskQuestions : MonoBehaviour {
     {
         timeElapse += Time.deltaTime;
         //print(timeElapse);
-
+        if (endOfTest)
+            return;
         //print((transform.position - player.transform.position).sqrMagnitude);
         // Start conversation here.
         if ((transform.position - player.transform.position).sqrMagnitude <= 15 && initial_greeting == false)
         {
-            audioS.clip = Resources.Load("Audio/howdoyoudo") as AudioClip;
-            audioS.Play();
+            curQuestion = questionOperation.AskQuestion(audioS);
+            //audioS.clip = Resources.Load("Audio/howdoyoudo") as AudioClip;
+            //audioS.Play();
             initial_greeting = true;
             return;
         }
@@ -44,14 +49,19 @@ public class AskQuestions : MonoBehaviour {
             // and Mic is not start recording, Then start recording.
             if (!Microphone.IsRecording(null))
             {
-                microPhoneOp.StartRecording(ref recClip);
+                microPhoneOp.StartRecording(ref recClip, curQuestion.QDuration);
             }
             else
             {
-                if (questionOperation.TimeIsUp(Time.deltaTime))// || NoSoundForThreeSec())
+                if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration))// || NoSoundForThreeSec())
                 {
-                    microPhoneOp.StopRecording(recClip, "savedFileName");
-                    questionOperation.AskQuestion(audioS);
+                    microPhoneOp.StopRecording(recClip, "savedFileName"+curQuestion.ID);
+                    curQuestion = questionOperation.AskQuestion(audioS);
+                    if (curQuestion == null)
+                    {
+                        // Test is finished. No more questions. what we do now???
+                        endOfTest = true;
+                    }
                 }
             }
         }

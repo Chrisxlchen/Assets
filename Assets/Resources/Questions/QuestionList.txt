@@ -1,5 +1,6 @@
-1	Now, in this first part, I'd like to ask you some more questions about yourself, OK? Let's talk about your home town or village. What kind of place is it?	howdoyoudo	30
-2	What's the most interesting part of this place ... village?	howdoyoudo	30
-3	What kind of jobs do people in the village do?	howdoyoudo	30
-4	Would you say it's a good place to live?	howdoyoudo	30
-5	Let's move on to talk about accommodation. Tell me about the kind of accommodation you live in?	howdoyoudo	30
+1	how do you do?	howdoyoudo	10
+2	Now, in this first part, I'd like to ask you some more questions about yourself, OK? Let's talk about your home town or village. What kind of place is it?	howdoyoudo	30
+3	What's the most interesting part of this place ... village?	howdoyoudo	30
+4	What kind of jobs do people in the village do?	howdoyoudo	30
+5	Would you say it's a good place to live?	howdoyoudo	30
+6	Let's move on to talk about accommodation. Tell me about the kind of accommodation you live in?	howdoyoudo	30
