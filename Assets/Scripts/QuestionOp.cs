@@ -22,8 +22,13 @@ namespace Assets.Scripts
             Questions currentQuestion = questions.GetNextQuestion();
             if (currentQuestion != null)
             {
+                Debug.Log("Question: " + currentQuestion.QText);
                 audioSource.clip = Resources.Load("Audio/" + currentQuestion.QAudio) as AudioClip;
                 audioSource.Play();
+            } else
+            {
+                Debug.Log("Failed to get Question.");
+
             }
             return currentQuestion;
         }

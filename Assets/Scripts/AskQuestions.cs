@@ -1,72 +1,143 @@
 ﻿using UnityEngine;
 using System.Collections;
 using Assets.Scripts;
+using System.Collections.Generic;
+using System.IO;
 
 public class AskQuestions : MonoBehaviour {
     // Use this for initialization
+    private enum states { Greeting = 1, Testing, Replay, TheEnd};
     private GameObject player;
     private AudioSource audioS;
-    private bool initial_greeting;
-    private bool endOfTest;
     private MicOp microPhoneOp;
     private AudioClip recClip;
-    private float timeElapse = 0;
-    private int recTimeLen = 10;
+    private float timeElapse;
     private QuestionOp questionOperation;
     private Questions curQuestion;
+    private List<string> QuestionsAndAnswers;
+    private int index;
+    private List<AudioClip> audioClips;
+    private states curState;
 
     void Start () {
+        curState = states.Greeting;
         timeElapse = 0;
-        initial_greeting = false;
-        endOfTest = false;
         player = GameObject.FindGameObjectWithTag("Player");
         audioS = GetComponent<AudioSource>();
         microPhoneOp = new MicOp();
         questionOperation = new QuestionOp();
+        QuestionsAndAnswers = new List<string>();
+        audioClips = new List<AudioClip>();
     }
 	
 	// Update is called once per frame
 	void Update ()
     {
         timeElapse += Time.deltaTime;
-        //print(timeElapse);
-        if (endOfTest)
-            return;
-        //print((transform.position - player.transform.position).sqrMagnitude);
-        // Start conversation here.
-        if ((transform.position - player.transform.position).sqrMagnitude <= 15 && initial_greeting == false)
+        //print(Application.dataPath);
+        if (curState == states.TheEnd)
         {
-            curQuestion = questionOperation.AskQuestion(audioS);
-            //audioS.clip = Resources.Load("Audio/howdoyoudo") as AudioClip;
-            //audioS.Play();
-            initial_greeting = true;
             return;
         }
-
-        // If the audio has stopped playing 
-        if (!audioS.isPlaying)
+        else if (curState == states.Replay)
         {
-            // and Mic is not start recording, Then start recording.
-            if (!Microphone.IsRecording(null))
+            //Replay();
+            StartCoroutine(PlayAudioList());
+            curState = states.TheEnd;
+            return;
+        }
+        else if (/*(transform.position - player.transform.position).sqrMagnitude <= 15 && */curState == states.Greeting)
+        {
+            curQuestion = questionOperation.AskQuestion(audioS);
+            QuestionsAndAnswers.Add(Application.dataPath + "/Resources/Audio/" + curQuestion.QAudio + ".mp3");
+            curState = states.Testing;
+            return;
+        }
+        else
+        {
+            // If the audio has stopped playing 
+            if (!audioS.isPlaying)
             {
-                microPhoneOp.StartRecording(ref recClip, curQuestion.QDuration);
-            }
-            else
-            {
-                if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration))// || NoSoundForThreeSec())
+                // and Mic is not start recording, Then start recording.
+                if (!Microphone.IsRecording(null))
                 {
-                    microPhoneOp.StopRecording(recClip, "savedFileName"+curQuestion.ID);
-                    curQuestion = questionOperation.AskQuestion(audioS);
-                    if (curQuestion == null)
+                    microPhoneOp.StartRecording(ref recClip, curQuestion.QDuration);
+                }
+                else
+                {
+                    if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration))// || NoSoundForThreeSec())
                     {
-                        // Test is finished. No more questions. what we do now???
-                        endOfTest = true;
+                        string answerToSave = "savedFileName" + curQuestion.QAudio;
+                        microPhoneOp.StopRecording(recClip, answerToSave);
+                        QuestionsAndAnswers.Add(Application.persistentDataPath + "/" + answerToSave + ".wav");
+                        curQuestion = questionOperation.AskQuestion(audioS);
+                        if (curQuestion == null)
+                        {
+                            // Test is finished. No more questions. what we do now???
+                            curState = states.Replay;
+                            index = 0;
+                            printTheReplay();
+                        }
+                        else
+                        {
+                            QuestionsAndAnswers.Add(Application.dataPath + "/Resources/Audio/" + curQuestion.QAudio + ".mp3");
+                        }
                     }
                 }
             }
         }
     }
 
+    private void Replay()
+    {
+        if (!audioS.isPlaying)
+        {
+            if (index < QuestionsAndAnswers.Count)
+            {
+                string path = Path.Combine(Application.persistentDataPath, QuestionsAndAnswers[index]);
+
+                audioS.clip = Resources.Load(QuestionsAndAnswers[index]) as AudioClip;
+                audioS.Play();
+                index++;
+            }
+        }
+    }
+
+    IEnumerator DownloadPlaylist()
+    {
+        //string[] playlist = Directory.GetFiles("Application.persistentDataPath", "*.wav", SearchOption.TopDirectoryOnly);
+
+        foreach (string song in QuestionsAndAnswers)
+        {
+            WWW audioLoader = new WWW("file://" + song);
+
+            while (!audioLoader.isDone)
+                yield return null;
+
+            audioClips.Add(audioLoader.GetAudioClip(false));
+        }
+    }
+
+    IEnumerator PlayAudioList()
+    {
+        yield return StartCoroutine("DownloadPlaylist");
+
+        foreach (AudioClip song in audioClips)
+        {
+            audioS.clip = song;
+            audioS.Play();
+            yield return new WaitForSeconds(song.length);
+        }
+    }
+
+    private void printTheReplay()
+    {
+        int idx = 0;
+        for (idx = 0; idx < QuestionsAndAnswers.Count; idx++)
+        {
+            print(QuestionsAndAnswers[idx]);
+        }
+    }
     /*
     /// Starts the Mic, and plays the audio back in (near) real-time.
     private void StartMicListener()

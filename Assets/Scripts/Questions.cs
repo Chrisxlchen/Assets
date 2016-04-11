@@ -38,9 +38,6 @@ public class QuestionList
     public QuestionList()
     {
         string curDir = Directory.GetCurrentDirectory();
-        Debug.Log(curDir);
-        //string path = Directory.GetParent(Directory.GetParent(Directory.GetParent(Directory.GetCurrentDirectory()).FullName).FullName).FullName;
-
         string path = curDir + "/assets/Resources/Questions/QuestionList.txt";
         Debug.Log(path);
         LoadQuestions(path);
@@ -56,6 +53,7 @@ public class QuestionList
         {
             words = line.Split(delimiterChars);
             qList.Add(new Questions(int.Parse(words[0]), words[1], words[2], int.Parse(words[3])));
+            Debug.Log("load " + words[0] + " " + words[1]);
         }
         file.Close();
     }
