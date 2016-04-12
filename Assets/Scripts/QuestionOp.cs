@@ -23,6 +23,7 @@ namespace Assets.Scripts
             if (currentQuestion != null)
             {
                 Debug.Log("Question: " + currentQuestion.QText);
+                GuiTextDebug.debug("Question: " + currentQuestion.QText);
                 audioSource.clip = Resources.Load("Audio/" + currentQuestion.QAudio) as AudioClip;
                 audioSource.Play();
             } else

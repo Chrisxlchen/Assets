@@ -37,14 +37,41 @@ public class QuestionList
 
     public QuestionList()
     {
-        string curDir = Directory.GetCurrentDirectory();
-        string path = curDir + "/assets/Resources/Questions/QuestionList.txt";
+        string path = "Questions/QuestionList";
+        /*TextAsset txt = Resources.Load("Questions/QuestionList") as TextAsset;
+        Debug.Log("Text: " + txt.text);
+
+        string path = Application.dataPath + "/Resources/Questions/QuestionList.txt";
+        WWW request = new WWW(path);
+
+        while (!request.isDone)
+        {
+            Debug.Log("Loading...");
+        }
+
+        Debug.Log("Data: " + request.text);
         Debug.Log(path);
+        GuiTextDebug.debug(path);
+        GuiTextDebug.debug("Data: " + request.text);*/
         LoadQuestions(path);
     }
 
     private void LoadQuestions(string fileName)
     {
+        TextAsset txt = Resources.Load("Questions/QuestionList") as TextAsset;
+        string[] words;
+        string[] lines;
+        char[] delimiterChars1 = { '\n' };
+        char[] delimiterChars2 = { '\t' };
+        lines = txt.text.Split(delimiterChars1);
+        foreach (string line in lines)
+        {
+            words = line.Split(delimiterChars2);
+            qList.Add(new Questions(int.Parse(words[0]), words[1], words[2], int.Parse(words[3])));
+            Debug.Log("load " + words[0] + " " + words[1]);
+            GuiTextDebug.debug("load " + words[0] + " " + words[1]);
+        }
+        /*
         string[] words;
         string line;
         char[] delimiterChars = { '\t' };
@@ -54,8 +81,9 @@ public class QuestionList
             words = line.Split(delimiterChars);
             qList.Add(new Questions(int.Parse(words[0]), words[1], words[2], int.Parse(words[3])));
             Debug.Log("load " + words[0] + " " + words[1]);
+            GuiTextDebug.debug("load " + words[0] + " " + words[1]);
         }
-        file.Close();
+        file.Close();*/
     }
 
     public Questions GetNextQuestion()

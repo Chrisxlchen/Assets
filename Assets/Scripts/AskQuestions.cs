@@ -25,6 +25,7 @@ public class AskQuestions : MonoBehaviour {
         player = GameObject.FindGameObjectWithTag("Player");
         audioS = GetComponent<AudioSource>();
         microPhoneOp = new MicOp();
+
         questionOperation = new QuestionOp();
         QuestionsAndAnswers = new List<string>();
         audioClips = new List<AudioClip>();
@@ -46,10 +47,11 @@ public class AskQuestions : MonoBehaviour {
             curState = states.TheEnd;
             return;
         }
-        else if (/*(transform.position - player.transform.position).sqrMagnitude <= 15 && */curState == states.Greeting)
+        //(transform.position - player.transform.position).sqrMagnitude <= 15 && 
+        else if (curState == states.Greeting)
         {
             curQuestion = questionOperation.AskQuestion(audioS);
-            QuestionsAndAnswers.Add(Application.dataPath + "/Resources/Audio/" + curQuestion.QAudio + ".mp3");
+            QuestionsAndAnswers.Add("Audio/" + curQuestion.QAudio);
             curState = states.Testing;
             return;
         }
@@ -80,7 +82,7 @@ public class AskQuestions : MonoBehaviour {
                         }
                         else
                         {
-                            QuestionsAndAnswers.Add(Application.dataPath + "/Resources/Audio/" + curQuestion.QAudio + ".mp3");
+                            QuestionsAndAnswers.Add("Audio/" + curQuestion.QAudio);
                         }
                     }
                 }
@@ -106,15 +108,24 @@ public class AskQuestions : MonoBehaviour {
     IEnumerator DownloadPlaylist()
     {
         //string[] playlist = Directory.GetFiles("Application.persistentDataPath", "*.wav", SearchOption.TopDirectoryOnly);
-
+        AudioClip clip;
         foreach (string song in QuestionsAndAnswers)
         {
-            WWW audioLoader = new WWW("file://" + song);
+            if (song.StartsWith("Audio"))
+            {
+                clip = Resources.Load(song) as AudioClip;
+            }
+            else
+            {
+                WWW audioLoader = new WWW("file://" + song);
 
-            while (!audioLoader.isDone)
-                yield return null;
+                while (!audioLoader.isDone)
+                    yield return null;
 
-            audioClips.Add(audioLoader.GetAudioClip(false));
+                clip = audioLoader.GetAudioClip(false);
+            }
+
+            audioClips.Add(clip);
         }
     }
 
