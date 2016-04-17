@@ -67,7 +67,7 @@ public class AskQuestions : MonoBehaviour {
                 }
                 else
                 {
-                    if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration))// || NoSoundForThreeSec())
+                    if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration) || microPhoneOp.SilenceForNSecs(3, recClip))
                     {
                         string answerToSave = "savedFileName" + curQuestion.QAudio;
                         microPhoneOp.StopRecording(recClip, answerToSave);
@@ -149,13 +149,4 @@ public class AskQuestions : MonoBehaviour {
             print(QuestionsAndAnswers[idx]);
         }
     }
-    /*
-    /// Starts the Mic, and plays the audio back in (near) real-time.
-    private void StartMicListener()
-    {
-        audioS.clip = Microphone.Start("Built-in Microphone", true, 999, maxFreq);
-        // HACK - Forces the function to wait until the microphone has started, before moving onto the play function.
-        while (!(Microphone.GetPosition("Built-in Microphone") > 0)) { }
-        audioS.Play();
-    }*/
 }
