@@ -50,7 +50,7 @@ public static class SavWav
 
         using (var fileStream = CreateEmpty(filepath))
         {
-
+            clip = TrimSilence(clip, 0);
             ConvertAndWrite(fileStream, clip);
 
             WriteHeader(fileStream, clip);

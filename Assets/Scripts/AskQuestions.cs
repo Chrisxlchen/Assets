@@ -18,6 +18,7 @@ public class AskQuestions : MonoBehaviour {
     private int index;
     private List<AudioClip> audioClips;
     private states curState;
+    private const int MaxSliencePeriod = 3;
 
     void Start () {
         curState = states.Greeting;
@@ -63,11 +64,12 @@ public class AskQuestions : MonoBehaviour {
                 // and Mic is not start recording, Then start recording.
                 if (!Microphone.IsRecording(null))
                 {
-                    microPhoneOp.StartRecording(ref recClip, curQuestion.QDuration);
+                    recClip = microPhoneOp.StartRecording(curQuestion.QDuration);
                 }
                 else
                 {
-                    if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration) || microPhoneOp.SilenceForNSecs(3, recClip))
+                    if (questionOperation.TimeIsUp(Time.deltaTime, curQuestion.QDuration) || 
+                        microPhoneOp.SilenceForNSecs(MaxSliencePeriod, recClip))
                     {
                         string answerToSave = "savedFileName" + curQuestion.QAudio;
                         microPhoneOp.StopRecording(recClip, answerToSave);

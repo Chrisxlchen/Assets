@@ -21,8 +21,9 @@ public class MicOp
         timeElapsed = 0f;
     }
 
-    public void StartRecording(ref AudioClip rClip, int duration)
+    public AudioClip StartRecording(int duration)
     {
+        AudioClip rClip = new AudioClip();
         if (!Microphone.IsRecording(null))
         {
             rClip = Microphone.Start(null, true, duration, maxFreq);
@@ -31,6 +32,8 @@ public class MicOp
         {
             Debug.Log("Failed to start recording, Recording is already in progress!");
         }
+
+        return rClip;
     }
 
     public void StopRecording(AudioClip rClip, string fileName)
@@ -73,24 +76,33 @@ public class MicOp
             dbValue = -clamp;
         }
 
+        Debug.Log("volume:" + dbValue);
         return dbValue;
     }
 
     public bool SilenceForNSecs(int nSecs, AudioClip clip)
     {
         float[] samples = GetAudioData(clip);
-        if (AnalyzeSound(samples) <= 0)
+        if (samples != null)
         {
-            timeElapsed += Time.deltaTime;
-        } else
+            if (AnalyzeSound(samples) <= 0)
+            {
+                timeElapsed += Time.deltaTime;
+            }
+            else
+            {
+                timeElapsed = 0;
+            }
+
+            Debug.Log(timeElapsed);
+            if (timeElapsed >= nSecs)
+            {
+                return true;
+            }
+        }
+        else
         {
             timeElapsed = 0;
-        }
-
-        Debug.Log(timeElapsed);
-        if (timeElapsed >= nSecs)
-        {
-            return true;
         }
 
         return false;
